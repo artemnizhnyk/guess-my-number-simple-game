@@ -1,4 +1,5 @@
 "use strict";
+
 let secretNumber = createSecretNumber();
 let highScore = 0;
 
@@ -11,22 +12,41 @@ const guessInput = document.querySelector('.guess'),
     again = document.querySelector('.again');
 
 function createSecretNumber() {
-    return Math.trunc((Math.random() * 20) + 1);
+    return Math.trunc((Math.random() * 1000) + 1);
 }
 
-score.textContent = 20;
+score.textContent = 15;
 
 check.addEventListener('click', (ev) => {
+    guessing();
+});
+
+document.addEventListener('keypress', (ev) => {
+    if (ev.key === 'Enter') {
+        guessing();
+    }
+});
+
+function guessing() {
     const guess = +guessInput.value;
 
     if (!guess) {
-        message.textContent = "🛑 No number";
+        displayMessage("🛑 No number");
 
-    } else if (guess < 0 || guess > 20) {
-        message.textContent = "Number must be between 1 and 20!"
+    } else if (guess < 0 || guess > 1000) {
+        displayMessage("Number must be between 1 and 1000!");
+
+    } else if (guess > secretNumber || guess < secretNumber) {
+        if (+score.textContent > 1) {
+            displayMessage(guess > secretNumber ? "📈 Too high!" : "📉 Too low!");
+            score.textContent -= 1;
+        } else {
+            displayMessage("💥 You lost the game!");
+            score.textContent = 0;
+        }
 
     } else if (guess === secretNumber) {
-        message.textContent = "🎉 Correct number!";
+        displayMessage("🎉 Correct number!");
         body.style.backgroundColor = "#60b347";
         number.style.width = '30rem';
         number.textContent = secretNumber;
@@ -35,34 +55,19 @@ check.addEventListener('click', (ev) => {
             document.querySelector('.highscore').textContent = highScore;
         }
 
-    } else if (guess > secretNumber) {
-
-        if (+score.textContent > 1) {
-            message.textContent = "📈 Too high!";
-            score.textContent -= 1;
-        } else {
-            message.textContent = "💥 You lost the game!";
-            score.textContent = 0;
-        }
-
-    } else if (guess < secretNumber) {
-
-        if (+score.textContent > 1) {
-            message.textContent = "📉 Too low!";
-            score.textContent -= 1;
-        } else {
-            message.textContent = "💥 You lost the game!";
-            score.textContent = 0;
-        }
     }
-});
+}
 
 again.addEventListener('click', (ev) => {
-    score.textContent = 20;
-    message.textContent = "Start guessing...";
+    score.textContent = 15;
+    displayMessage("Start guessing...");
     number.textContent = '?';
     number.style.width = '15rem';
     body.style.backgroundColor = "#222";
     guessInput.value = '';
     secretNumber = createSecretNumber();
 });
+
+function displayMessage(messageText) {
+    message.textContent = messageText;
+}
